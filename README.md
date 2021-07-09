@@ -8,7 +8,7 @@ Screenshots will go here when the app is done.
 
 ## To-Dos
 
-- [ ] Get list of Pokemon with API
+- [x] Get list of Pokemon with API
 - [ ] Make component for brief pokemon overview for main screen
 - [ ] Make component for detailed pokemon overview when you click on it in the main screen
 - [ ] Make feature to sort Pokemon by type
