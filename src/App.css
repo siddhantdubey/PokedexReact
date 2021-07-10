@@ -1,0 +1,11 @@
+body {
+    background-image: radial-gradient(circle, #ff0000, #ff0043, #f30071, #d30099, #a326b7, #b528b5, #c52cb2, #d431b0, #ff3686, #ff6a57, #ffa625, #ffde00);
+}
+
+
+.grid-container {
+    display: grid;
+    grid-template-columns: auto auto auto auto auto;
+    /* background-color: #2196F3; */
+    padding: 5px;
+}
