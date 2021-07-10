@@ -3,7 +3,12 @@ import PokemonList from "./PokemonList";
 import Pagination from "./Pagination";
 import axios from 'axios';
 import './App.css'
+import Select from 'react-select';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
+function closestMultipleOfFive(x){
+  return (x + (5-x%5))
+}
 
 function App() {
 
@@ -13,7 +18,7 @@ function App() {
   - Sort pokemon by type (we can do this by directly altering the API call)
   */
 
-  const queryNum = 20
+  const [queryNum, setQueryNum] = useState(20)
   const numRows = queryNum/5
   const [pokemon, setPokemon] = useState([])
   const [currentPageUrl, setCurrentPageUrl] = useState("https://pokeapi.co/api/v2/pokemon/")
@@ -22,8 +27,33 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [type, setType] = useState()
   
+  const actions = [
+    { label: "All", value: "All"},
+    { label: "Normal", value: "Normal" },
+    { label: "Fighting", value: "Fighting" },
+    { label: "Flying", value: "Flying" },
+    { label: "Poison", value: "Poison" },
+    { label: "Ground", value: "Ground" },
+    { label: "Rock", value: "Rock" },
+    { label: "Bug", value: "Bug" },
+    { label: "Ghost", value:  "Ghost"},
+    { label: "Steel", value: "Steel" },
+    { label: "Fire", value: "Fire" },
+    { label: "Water", value: "Water" },
+    { label: "Grass", value: "Grass" },
+    { label: "Electric", value: "Electric" },
+    { label: "Psychic", value: "Psychic" },
+    { label: "Ice", value: "Ice" },
+    { label: "Dragon", value: "Dragon" },
+    { label: "Dark", value: "Dark" },
+    { label: "Fairy", value: "Fairy"},
+    { label: "unknown", value: "unknown" },
+    { label: "Shadow", value: "Shadow" },
+  ];
+
 
   let types = {
+    'All': undefined,
     'Normal': 1, 
     'Fighting': 2,
     'Flying': 3,
@@ -46,47 +76,48 @@ function App() {
     'shadow': 10002
   };
   
-  
-
-  // setCurrentPageUrl(url)
 
   useEffect(() => {
     setLoading(true)
     let cancel 
     let url
-    
-      // url = ("https://pokeapi.co/api/v2/pokemon/")
-      // setCurrentPageUrl(url)
+    setQueryNum(20)
+    if(type === undefined || type === 'All'){
+      if(!(currentPageUrl.includes("https://pokeapi.co/api/v2/pokemon/"))){
+        url = "https://pokeapi.co/api/v2/pokemon/"
+        setCurrentPageUrl(url)
+      }
       axios.get(currentPageUrl, {
         cancelToken: new axios.CancelToken(c => cancel = c) //this is so we can cancel old requests if the user spams the refresh button
       }).then(res => {
         setLoading(false)
-        console.log(res.data.results)
+        console.log(res.data)
         setNextPageUrl(res.data.next)
+        console.log("Next page url: " + nextPageUrl)
         setPrevPageUrl(res.data.previous)
+        console.log("Previous Page Url: " + prevPageUrl)
         setPokemon(res.data.results.map(p => p))
       })
+    }
+    else{
+      url = "https://pokeapi.co/api/v2/type/" + types[type]
+      setCurrentPageUrl(url)
+      axios.get(currentPageUrl, {
+        cancelToken: new axios.CancelToken(c => cancel = c) //this is so we can cancel old requests if the user spams the refresh button
+      }).then(res => {
+        console.log(res.data.pokemon)
+        setLoading(false)
+        setQueryNum(closestMultipleOfFive(res.data.pokemon.length))
+        setPokemon(res.data.pokemon.map(p => p.pokemon))
+      })
+    }
     
-    // else{
-    //   url = "https://pokeapi.co/api/v2/type/" + types[type]
-    //   setCurrentPageUrl(url)
-    //   axios.get(currentPageUrl, {
-    //     cancelToken: new axios.CancelToken(c => cancel = c) //this is so we can cancel old requests if the user spams the refresh button
-    //   }).then(res => {
-    //     console.log(res.data.pokemon)
-    //     setLoading(false)
-    //     // setNextPageUrl(res.data.next)
-    //     // setPrevPageUrl(res.data.previous)
-    //     setPokemon(res.data.pokemon.map(p => p.poggies))
-    //   })
-    // }
-    
-
     return () => cancel() 
     
   }, [currentPageUrl, type])
 
   function gotoNextPage() {
+    console.log("function called")
     setCurrentPageUrl(nextPageUrl)
   }
 
@@ -104,6 +135,8 @@ function App() {
 
   return (
     <>
+      <Select options={ actions } placeholder="Select Pokemon Type" onChange={ (event) => {setType(event.value); setNextPageUrl(nextPageUrl); setPrevPageUrl(prevPageUrl)} }/>
+      <h1>{ type } type Pokemon</h1>
       <div>
         {renderedOutput}
       </div>
